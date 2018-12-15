@@ -14,20 +14,43 @@ namespace Practice01
     {
         [FunctionName("WorkAzure")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "naam/{number1}/{number2}")] HttpRequest req, int number1, int number2,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
-            string name = req.Query["name"];
+            int result = number1 + number2;
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
+            if (result != null)
+            {
+                return new OkObjectResult(result);
+            }
+            else
+            {
+                return new StatusCodeResult(500);
+            }
+        }
 
-            return name != null
-                ? (ActionResult)new OkObjectResult($"Hello, {name}")
-                : new BadRequestObjectResult("Please pass a name on the query string or in the request body");
+        [FunctionName("DeelGetallen")]
+        public static async Task<IActionResult> Delen(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "delen/{number1}/{number2}")]
+            HttpRequest req, int number1, int number2,
+            ILogger log)
+        {
+            double result = number1 / number2;
+
+            if (result != null)
+            {
+                return new OkObjectResult("Het resultaat van de deling is:" + result);
+            }
+            else if (number2 == 0)
+            {
+                return new StatusCodeResult(500);
+            }
+            else
+            {
+                return new StatusCodeResult(500);
+            }
         }
     }
 }
