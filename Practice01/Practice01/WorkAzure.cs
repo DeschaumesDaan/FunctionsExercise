@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Practice01.Model;
 
 namespace Practice01
 {
@@ -52,5 +54,46 @@ namespace Practice01
                 return new StatusCodeResult(500);
             }
         }
+
+        [FunctionName("Som")]
+        public static async Task<IActionResult> Som(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]
+            HttpRequest req, ILogger log)
+        {
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            Sum Data = JsonConvert.DeserializeObject<Sum>(requestBody);
+            Resultaat r = new Resultaat();
+            r.Som = Data.Getal1 + Data.Getal2;
+
+            return new OkObjectResult(r);
+        }
+
+        [FunctionName("Alcohol")]
+        public static async Task<IActionResult> Alcohol(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]
+            HttpRequest req, ILogger log)
+        {
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            Drink drinks = JsonConvert.DeserializeObject<Drink>(requestBody);
+            if (drinks.Leeftijd < 18)
+            {
+                if (drinks.Drank == "gin" || drinks.Drank == "wijn" || drinks.Drank == "bier")
+                {
+                    return new StatusCodeResult(400);
+                }
+                else
+                {
+                    return new OkObjectResult("Enjoy your drink");
+                }
+                
+            }
+            else
+            {
+                return new OkObjectResult("Enjoy your drink");
+            }
+            
+        }
+
+
     }
 }
